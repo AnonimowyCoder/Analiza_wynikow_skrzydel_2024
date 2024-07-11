@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
-from src.data_manager import DataManager
-from src.plotter import Foils_Plotter
+from src.FoilManager import FoilManager
+from src.FoilPlotter import FoilPlotter
 
 def select_and_plot(plotter):
     while True:
@@ -71,37 +71,40 @@ def compare_foils_drag(plotterA, plotterB):
     # Display the plot
     plt.show()
 
-    
-
-
 
 def main():
-    print(plt.style.available)
 
-    # Apply a style (e.g., 'seaborn-darkgrid')
+    # Apply a style 
     plt.style.use('ggplot')
 
     # File paths to the CSV files
-    NACA6409_data = 'data/CFD_3D_skrzydla_przednie2023_batmanowe_NACA6409_Wyniki.csv'
-    NACA64A715_data = 'data/CFD_3D_skrzydla_przednie2021_owalne_NACA64A715_Wyniki.csv'
+    NACA6409_CFD_path = 'data_CFD/CFD_3D_skrzydla_przednie2023_batmanowe_NACA6409_Wyniki.csv'
+    NACA64A715_CFD_path = 'data_CFD/CFD_3D_skrzydla_przednie2021_owalne_NACA64A715_Wyniki.csv'
+    NACA6409_AFT_path = 'data_AFT/xf-n6409-il-1000000-n5.csv'
 
     # Initialize DataManager and load data
-    data_manager_NACA6409 = DataManager('NACA 6409',NACA6409_data)
-    data_manager_NACA6409.load_data()
-    data_manager_NACA6409.clean_data()
+    data_manager_NACA6409_CFD = FoilManager('CFD','NACA 6409',NACA6409_CFD_path,732,100,64219)
+    data_manager_NACA6409_CFD.load_data()
+    data_manager_NACA6409_CFD.clean_data()
 
-    data_manager_NACA64A715 = DataManager('NACA 64A715',NACA64A715_data)
-    data_manager_NACA64A715.load_data()
-    data_manager_NACA64A715.clean_data()
+    data_manager_NACA6409_AFT = FoilManager('AFT','NACA 6409',NACA6409_AFT_path)
+    data_manager_NACA6409_AFT.load_data()
+    data_manager_NACA6409_AFT.clean_data()
+    print(data_manager_NACA6409_AFT.data.head(10))
 
-    plotter_NACA6409 = Foils_Plotter(data_manager_NACA6409)
-    plotter_NACA64A715 = Foils_Plotter(data_manager_NACA64A715)
+    data_manager_NACA64A715_CFD = FoilManager('CFD','NACA 64A715',NACA64A715_CFD_path,830,105,68615)
+    data_manager_NACA64A715_CFD.load_data()
+    data_manager_NACA64A715_CFD.clean_data()
+
+    plotter_NACA6409 = FoilPlotter(data_manager_NACA6409_CFD)
+    plotter_NACA64A715 = FoilPlotter(data_manager_NACA64A715_CFD)
 
     compare_foils_lift(plotter_NACA6409,plotter_NACA64A715)
 
     compare_foils_drag(plotter_NACA6409, plotter_NACA64A715)
 
-    exit_call = input("Press x to exit")
+    exit_call = input("Press whatever to exit")
+
 
 if __name__ == '__main__':
     main()

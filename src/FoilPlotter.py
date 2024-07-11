@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 
-class Foils_Plotter:
+class FoilPlotter:
+
     def __init__(self, data_manager):
         self.data_manager = data_manager
 
