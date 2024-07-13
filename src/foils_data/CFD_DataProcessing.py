@@ -20,3 +20,13 @@ class CFD_DataProcessingMixin:
         """
         self.data['drag_coefficient'] = (2 * self.data['drag_force']) / (
                 density * pow(self.data['inlet_vel'], 2) * self.m2_foil_area)
+
+    def calculate_cl_cd(self):
+        """
+        Calculate lift coefficient vs drag coefficient (effectivness of foil).
+
+        Formula:
+
+        cl_cd = cl / cd
+        """
+        self.data['cl_cd'] = self.data['lift_coefficient'] / self.data['drag_coefficient']

@@ -1,16 +1,7 @@
 from matplotlib import pyplot as plt
-from src.FoilManager import FoilManager
-from src.FoilPlotter import FoilPlotter
-
-DENSITY_OF_WATER = 997  # in kg/m^3
-
-NACA6409_TOTAL_LENGTH = 0.732  # in m
-NACA6409_CHORD_LENGTH = 0.1  # in m
-NACA6409_AREA = 0.064219  # in m^2
-
-NACA64A715_TOTAL_LENGTH = 0.830  # in m
-NACA64A715_CHORD_LENGTH = 0.105  # in m
-NACA64A715_AREA = 0.068615  # in m^2
+from src.foils_data.FoilManager import FoilManager
+from src.foils_data.FoilPlotter import FoilPlotter
+from src.utilities.Constants import *
 
 
 def compare_foils_lift(plotterA, plotterB):
@@ -71,35 +62,46 @@ def main():
     NACA64A715_CFD_path = 'data_CFD/CFD_3D_skrzydla_przednie2021_owalne_NACA64A715_Wyniki.csv'
     NACA6409_AFT_path = 'data_AFT/xf-n6409-il-1000000-n5.csv'
 
-    # Initialize DataManager and load data
+    # Initialize DataManagers
     ############################################################
     data_manager_NACA6409_CFD = FoilManager('CFD', 'NACA 6409', NACA6409_CFD_path, NACA6409_TOTAL_LENGTH,
                                             NACA6409_CHORD_LENGTH, NACA6409_AREA)
     data_manager_NACA6409_CFD.load_data()
     data_manager_NACA6409_CFD.clean_data()
-    data_manager_NACA6409_CFD.calculate_lift_coefficient(DENSITY_OF_WATER)
-    data_manager_NACA6409_CFD.calculate_drag_coefficient(DENSITY_OF_WATER)
+    data_manager_NACA6409_CFD.calculate_lift_coefficient(WATER_DENSITY)
+    data_manager_NACA6409_CFD.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_NACA6409_CFD.calculate_cl_cd()
 
     #############################################################
     data_manager_NACA6409_AFT = FoilManager('AFT', 'NACA 6409', NACA6409_AFT_path, NACA6409_TOTAL_LENGTH,
                                             NACA6409_CHORD_LENGTH, NACA6409_AREA)
     data_manager_NACA6409_AFT.load_data()
     data_manager_NACA6409_AFT.clean_data()
-    data_manager_NACA6409_AFT.calculate_lift(DENSITY_OF_WATER)
-    data_manager_NACA6409_AFT.calculate_drag(DENSITY_OF_WATER)
+    data_manager_NACA6409_AFT.calculate_lift(WATER_DENSITY)
+    data_manager_NACA6409_AFT.calculate_drag(WATER_DENSITY)
+    data_manager_NACA6409_AFT.calculate_cl_cd()
 
     ##############################################################
     data_manager_NACA64A715_CFD = FoilManager('CFD', 'NACA 64A715', NACA64A715_CFD_path, NACA64A715_TOTAL_LENGTH,
                                               NACA64A715_CHORD_LENGTH, NACA64A715_AREA)
     data_manager_NACA64A715_CFD.load_data()
     data_manager_NACA64A715_CFD.clean_data()
-
-
+    data_manager_NACA64A715_CFD.calculate_lift_coefficient(WATER_DENSITY)
+    data_manager_NACA64A715_CFD.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_NACA64A715_CFD.calculate_cl_cd()
 
     plotter_NACA6409_CFD = FoilPlotter(data_manager_NACA6409_CFD)
     plotter_NACA6409_AFT = FoilPlotter(data_manager_NACA6409_AFT)
+    plotter_NACA64A715_CFD = FoilPlotter(data_manager_NACA64A715_CFD)
 
-    analysis_AFT_vs_CFD(plotter_NACA6409_CFD, plotter_NACA6409_AFT)
+    #analysis_AFT_vs_CFD(plotter_NACA6409_CFD, plotter_NACA6409_AFT)
+
+    #compare_foils_lift(plotter_NACA6409_CFD, plotter_NACA64A715_CFD)
+    #compare_foils_drag(plotter_NACA6409_CFD, plotter_NACA64A715_CFD)
+
+    print(data_manager_NACA6409_CFD.filter_data_by_velocity(8))
+    print(data_manager_NACA64A715_CFD.filter_data_by_velocity(8))
+    print(data_manager_NACA6409_AFT.filter_data_by_velocity(8))
 
     exit_call = input("Press whatever to exit")
 

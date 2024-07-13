@@ -1,11 +1,11 @@
 import pandas as pd
-from src.DataLoading import DataLoadingMixin
-from src.DataCleaning import DataCleaningMixin
-from src.AFT_DataProcessing import AFT_DataProcessingMixin
-from src.CFD_DataProcessing import CFD_DataProcessingMixin
+from src.foils_data.DataLoading import DataLoadingMixin
+from src.foils_data.DataCleaning import DataCleaningMixin
+from src.foils_data.AFT_DataProcessing import AFT_DataProcessingMixin
+from src.foils_data.CFD_DataProcessing import CFD_DataProcessingMixin
 
 
-class FoilManager(DataLoadingMixin, DataCleaningMixin, AFT_DataProcessingMixin, CFD_DataProcessingMixin, ):
+class FoilManager(DataLoadingMixin, DataCleaningMixin, AFT_DataProcessingMixin, CFD_DataProcessingMixin):
     def __init__(self, results_type: str, foil_name: str, file_path: str, m_foil_total_length: float = 0.0,
                  m_foil_chord_length: float = 0.0, m2_foil_area: float = 0.0):
         """
