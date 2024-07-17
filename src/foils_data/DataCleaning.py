@@ -22,14 +22,15 @@ class DataCleaningMixin:
         self.data.reset_index(drop=True, inplace=True)
 
         # Convert to numeric
-        self.data['inlet_vel'] = pd.to_numeric(self.data['inlet_vel'], errors='coerce')
-        self.data['angle_of_attack'] = pd.to_numeric(self.data['angle_of_attack'], errors='coerce')
-        self.data['moment'] = pd.to_numeric(self.data['moment'], errors='coerce')
-        self.data['lift_force'] = pd.to_numeric(self.data['lift_force'], errors='coerce')
-        self.data['drag_force'] = pd.to_numeric(self.data['drag_force'], errors='coerce')
+        self.data['inlet_vel'] = pd.to_numeric(self.data['inlet_vel'], errors='coerce').astype('float64')
+        self.data['angle_of_attack'] = pd.to_numeric(self.data['angle_of_attack'], errors='coerce').astype('float64')
+        self.data['moment'] = pd.to_numeric(self.data['moment'], errors='coerce').astype('float64')
+        self.data['lift_force'] = pd.to_numeric(self.data['lift_force'], errors='coerce').astype('float64')
+        self.data['drag_force'] = pd.to_numeric(self.data['drag_force'], errors='coerce').astype('float64')
+        self.data['lift_coefficient'] = pd.to_numeric(self.data['lift_coefficient'], errors='coerce').astype('float64')
+        self.data['drag_coefficient'] = pd.to_numeric(self.data['drag_coefficient'], errors='coerce').astype('float64')
 
-        # Drop rows with NaN values in specific columns
-        self.data.dropna(subset=['inlet_vel', 'angle_of_attack', 'moment', 'lift_force', 'drag_force'], inplace=True)
+    def multiply_forces_by_2(self):
 
         # Multiplies by 2 the moment, lift force and drag force column
         # It is done because results from simulation are for symmetry

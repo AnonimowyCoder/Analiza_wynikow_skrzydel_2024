@@ -63,15 +63,22 @@ script_dir = Path(__file__).resolve().parent
 NACA6409_CFD_path = script_dir / '..' / '..' / 'data_CFD' / 'CFD_3D_skrzydla_przednie2023_batmanowe_NACA6409_Wyniki.csv'
 NACA6409_CFD_path = NACA6409_CFD_path.resolve()
 
-Celka = Boat(6.039, 1.69, 193, 2.676)
-Celka.distribution_of_masses(3.551, 0.725, 0.386)
+Celka = Boat(6.039, 1.69, 193)
+Celka.distribution_of_masses(2.676, 3.551, 0.725, 0.386)
 data_manager_NACA6409_CFD = FoilManager('CFD', 'NACA 6409', NACA6409_CFD_path, NACA6409_TOTAL_LENGTH,
                                         NACA6409_CHORD_LENGTH, NACA6409_AREA)
 data_manager_NACA6409_CFD.load_data()
 data_manager_NACA6409_CFD.clean_data()
+data_manager_NACA6409_CFD.multiply_forces_by_2()
 data_manager_NACA6409_CFD.calculate_lift_coefficient(WATER_DENSITY)
 data_manager_NACA6409_CFD.calculate_drag_coefficient(WATER_DENSITY)
 data_manager_NACA6409_CFD.calculate_cl_cd()
 
 #calculate_foil_area(1.5, 6, Celka.front_pylon_left_mass, data_manager_NACA6409_CFD)
 overall_lift_analysis(6, data_manager_NACA6409_CFD, 0.5, data_manager_NACA6409_CFD, 0.5, Celka)
+
+print('Actual celkas center of mass: ', Celka.mass_center_y_position)
+
+print('\n\n')
+Celka.center_of_mass_based_on_front_rear_mass_ratio(0.72, Celka.front_pylons_y_position, Celka.front_pylons_x_width,
+                                                    Celka.rear_pylon_y_position)
