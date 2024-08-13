@@ -40,7 +40,7 @@ class Boat:
         """
         Class representing the Boat Blueprint
 
-        The center of coordinate system is on the middle of the back of the boat.
+        The center of coordinate system is in the middle of the back of the boat.
         Hence there are no negative 'y' coordinates.
         The center of mass is considered to be on 'y' axis.
         The rear pylon is considered to be on 'y' axis.
@@ -67,8 +67,8 @@ class Boat:
     def center_of_mass_based_on_front_rear_mass_ratio(self, front_pylons_mass_ratio, front_pylons_y_position,
                                                       front_pylons_x_width, rear_pylon_y_position):
         """
-        Function that calculates the positon of center of mass based on mass distribution ration on pylons. Requires the
-        postions of pylons.
+        Function that calculates the position of center of mass based on mass distribution ration on pylons. Requires the
+        positions of pylons.
 
         Uses simple geometric relationship:
         mass_center_y_position = front_pylons_y_position - (front_pylons_y_position - rear_pylon_y_position) * (rear_pylon_mass / mass)
@@ -99,7 +99,7 @@ class Boat:
     def distribution_of_masses(self, mass_center_y_position, front_pylons_y_position, front_pylons_x_width,
                                rear_pylon_y_position):
         """
-        Function that calculates the distribution of masses on pylons that are on given positions. The functi
+        Function that calculates the distribution of masses on pylons that are on given positions. The function
         Uses a simple geometric relationship:
         R3 = P * d12 / h3
 

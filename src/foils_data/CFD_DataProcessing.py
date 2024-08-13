@@ -1,3 +1,7 @@
+import numpy as np
+from scipy.interpolate import griddata
+
+
 class CFD_DataProcessingMixin:
     def calculate_lift_coefficient(self, density):
         """
@@ -23,10 +27,33 @@ class CFD_DataProcessingMixin:
 
     def calculate_cl_cd(self):
         """
-        Calculate lift coefficient vs drag coefficient (effectivness of foil).
+        Calculate lift coefficient vs drag coefficient (effectiveness of foil).
 
         Formula:
 
         cl_cd = cl / cd
         """
         self.data['cl_cd'] = self.data['lift_coefficient'] / self.data['drag_coefficient']
+
+    def get_interpolated_drag_coefficient(self, angle_of_attack, velocity):
+        """
+        Get the interpolated drag coefficient using cubic interpolation.
+        """
+
+        points = self.data[['angle_of_attack', 'inlet_vel']].values
+        values = self.data['drag_coefficient'].values
+
+        # To get interpolated value for specific points
+        return griddata(points, values, (angle_of_attack, velocity), method='cubic')
+
+    def get_interpolated_lift_coefficient(self, angle_of_attack, velocity):
+        """
+        Get the interpolated lift coefficient using cubic interpolation.
+        """
+
+        points = self.data[['angle_of_attack', 'inlet_vel']].values
+        values = self.data['lift_coefficient'].values
+
+        # To get interpolated value for specific points
+        return griddata(points, values, (angle_of_attack, velocity), method='cubic')
+

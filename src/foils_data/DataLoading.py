@@ -7,7 +7,7 @@ class DataLoadingMixin:
     """
     def load_data(self):
         """
-        Load data from a CSV file that comes from a AFT or CFD.
+        Load data from a CSV file that comes from an AFT or CFD.
 
         The CSV file should be prepared in a proper format (see README).
         """
