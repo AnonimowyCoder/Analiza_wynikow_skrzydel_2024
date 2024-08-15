@@ -7,6 +7,20 @@ from pathlib import Path
 
 # Module to realize the algorithm of modelling a flight
 
+def overall_front_drag_analysis(front_foil_area, target_velocity, front_parts_manager: FoilManager,
+                                front_target_angle_of_attack):
+    front_foil_drag = (1 / 2) * WATER_DENSITY * pow(target_velocity,
+                                                    2) * front_foil_area * front_parts_manager.get_interpolated_drag_coefficient(
+        front_target_angle_of_attack, target_velocity)
+
+    front_pylon_drag = front_parts_manager.get_interpolated_drag_force_pylon(front_target_angle_of_attack,
+                                                                             target_velocity)
+    front_mocowanie_drag = front_parts_manager.get_interpolated_drag_force_mocowanie(front_target_angle_of_attack,
+                                                                                     target_velocity)
+
+    return front_foil_drag, front_pylon_drag, front_mocowanie_drag
+
+
 def foils_drag_analysis(rear_foil_area, front_foil_area, target_velocity, frontFoilManager: FoilManager,
                         front_target_angle_of_attack, rearFoilManager: FoilManager, rear_target_angle_of_attack):
     """
@@ -82,11 +96,40 @@ def calculate_foil_area(target_angle_of_attack, target_velocity, pylon_mass, foi
     return foil_area
 
 
+def Celka_front_drag_analysis():
+    script_dir = Path(__file__).resolve().parent
+    Front_Celka_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_Celka_2024.csv'
+    Front_Celka_drags_path = Front_Celka_drags_path.resolve()
+
+    data_manager_Front_Celka_drags = FoilManager('DRAG', 'Front pylons', Front_Celka_drags_path, 0, 0, NACA6409_AREA)
+    data_manager_Front_Celka_drags.load_data()
+    data_manager_Front_Celka_drags.clean_data()
+    print(data_manager_Front_Celka_drags.data.head(10))
+    data_manager_Front_Celka_drags.multiply_forces_by_2_DRAG()
+    print(data_manager_Front_Celka_drags.data.head(10))
+    data_manager_Front_Celka_drags.calculate_lift_coefficient(WATER_DENSITY)
+    data_manager_Front_Celka_drags.calculate_drag_coefficient(WATER_DENSITY)
+
+    front_foil_drag, front_pylon_drag, front_mocowanie_drag = overall_front_drag_analysis(NACA6409_AREA, 6.5,
+                                                                                          data_manager_Front_Celka_drags,
+                                                                                          0.5)
+
+    print("front foil drag = ", front_foil_drag)
+    print("front pylon drag = ", front_pylon_drag)
+    print("front mocowanie drag = \n", front_mocowanie_drag)
+    overall_front_drag = 2 * (front_foil_drag + front_pylon_drag + front_mocowanie_drag)
+    print("Overall front drag = ", overall_front_drag)
+    print("\n\n\n")
+###################################################################
+# Beggining of a script
+
+#Celka_front_drag_analysis()
+
 # Setting path for the csv file
 script_dir = Path(__file__).resolve().parent
-NACA6409_CFD_path = script_dir / '..' / '..' / 'data_CFD' / 'CFD_3D_skrzydla_przednie2023_batmanowe_NACA6409_Wyniki.csv'
+NACA6409_CFD_path = script_dir / '..' / '..' / 'data_CFD' / 'CFD_3D_skrzydla_przednie2023_batmanowe_NACA6409_Wyniki_p.csv'
 NACA6409_CFD_path = NACA6409_CFD_path.resolve()
-EPPLER908_CFD_path = script_dir / '..' / '..' / 'data_CFD' / 'CFD_3D_skrzydla_tylnie2021_eppler908_Wyniki.csv'
+EPPLER908_CFD_path = script_dir / '..' / '..' / 'data_CFD' / 'CFD_3D_skrzydla_tylnie2021_eppler908_Wyniki_p.csv'
 EPPLER908_CFD_path = EPPLER908_CFD_path.resolve()
 
 Celka = Boat(6.039, 1.69, 190)
@@ -97,7 +140,7 @@ data_manager_NACA6409_CFD = FoilManager('CFD', 'NACA 6409', NACA6409_CFD_path, N
                                         NACA6409_CHORD_LENGTH, NACA6409_AREA)
 data_manager_NACA6409_CFD.load_data()
 data_manager_NACA6409_CFD.clean_data()
-data_manager_NACA6409_CFD.multiply_forces_by_2()
+data_manager_NACA6409_CFD.multiply_forces_by_2_CFD()
 data_manager_NACA6409_CFD.calculate_lift_coefficient(WATER_DENSITY)
 data_manager_NACA6409_CFD.calculate_drag_coefficient(WATER_DENSITY)
 data_manager_NACA6409_CFD.calculate_cl_cd()
@@ -105,14 +148,14 @@ data_manager_NACA6409_CFD.calculate_cl_cd()
 data_manager_EPPLER908 = FoilManager('CFD', 'EPPLER 908', EPPLER908_CFD_path, 0, 0, EPPLER908_AREA)
 data_manager_EPPLER908.load_data()
 data_manager_EPPLER908.clean_data()
-data_manager_EPPLER908.multiply_forces_by_2()
+data_manager_EPPLER908.multiply_forces_by_2_CFD()
 data_manager_EPPLER908.calculate_lift_coefficient(WATER_DENSITY)
 data_manager_EPPLER908.calculate_drag_coefficient(WATER_DENSITY)
 data_manager_EPPLER908.calculate_cl_cd()
 
-rear_foil_area, front_foil_area = overall_lift_analysis(6.5, data_manager_NACA6409_CFD, 0.0, data_manager_EPPLER908,
+rear_foil_area, front_foil_area = overall_lift_analysis(6.5, data_manager_NACA6409_CFD, 3, data_manager_EPPLER908,
                                                         0.0, Celka)
-rear_drag, front_drag = foils_drag_analysis(rear_foil_area, front_foil_area, 6.5, data_manager_NACA6409_CFD, 0.0,
+rear_drag, front_drag = foils_drag_analysis(rear_foil_area, front_foil_area, 6.5, data_manager_NACA6409_CFD, 3,
                                             data_manager_EPPLER908,
                                             0.0)
 print("rear drag is: ", rear_drag, "front drag is: ", front_drag)
@@ -121,19 +164,21 @@ print("Overall drag from foils: ", rear_drag + 2 * front_drag, "[N]")
 
 Celka_foils_drag = rear_drag + 2 * front_drag
 
-print("Front foil area is for celka is: ",front_foil_area)
+print("Front foil area is for celka is: ", front_foil_area)
 print("Current front foil area is: ", NACA6409_AREA)
 
-power_consumption
+####################################
+# AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
 # print("\n\nTEST BOAT CALCULATIONS")
 # print("#############################################")
 # test_boat = Boat(6, 1.7, 165)
 # test_boat.center_of_mass_based_on_front_rear_mass_ratio(0.75, 3.5, 0.725, 0.386)
 #
-# rear_foil_area, front_foil_area = overall_lift_analysis(8, data_manager_NACA6409_CFD, 0.5, data_manager_EPPLER908, 0.5,
+# rear_foil_area, front_foil_area = overall_lift_analysis(8, data_manager_NACA6409_CFD_bad, 0.5, data_manager_EPPLER908, 0.5,
 #                                                         test_boat)
 #
-# rear_drag, front_drag = foils_drag_analysis(rear_foil_area, front_foil_area, 8, data_manager_NACA6409_CFD, 0.5,
+# rear_drag, front_drag = foils_drag_analysis(rear_foil_area, front_foil_area, 8, data_manager_NACA6409_CFD_bad, 0.5,
 #                                             data_manager_EPPLER908,
 #                                             0.5)
 #

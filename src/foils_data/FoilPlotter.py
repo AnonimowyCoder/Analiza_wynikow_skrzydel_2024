@@ -2,7 +2,52 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
+
 matplotlib.use('TkAgg')
+
+
+def compare_foils_lift(plotterA, plotterB):
+    # Create a single figure with a 2x2 grid of subplots
+    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+    fig.suptitle('Lift Force vs. Angle of Attack Comparison for Different Velocities', fontsize=16)
+
+    # Define the velocities to plot
+    velocities = [5.0, 6.0, 7.0, 8.0]
+
+    # Plot each comparison on a different subplot
+    for i, velocity in enumerate(velocities):
+        row, col = divmod(i, 2)
+        ax = axs[row, col]
+
+        plotterA._plot_lift_vs_angle_compare_foils_on_axis(velocity, plotterB.data_manager, ax)
+
+    # Adjust layout
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+    # Display the plot
+    plt.show()
+
+
+def compare_foils_drag(plotterA, plotterB):
+    # Create a single figure with a 2x2 grid of subplots
+    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+    fig.suptitle('Drag Force vs. Angle of Attack Comparison for Different Velocities', fontsize=16)
+
+    # Define the velocities to plot
+    velocities = [5.0, 6.0, 7.0, 8.0]
+
+    # Plot each comparison on a different subplot
+    for i, velocity in enumerate(velocities):
+        row, col = divmod(i, 2)
+        ax = axs[row, col]
+
+        plotterA._plot_drag_vs_angle_compare_foils_on_axis(velocity, plotterB.data_manager, ax)
+
+    # Adjust layout
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+    # Display the plot
+    plt.show()
 
 
 class FoilPlotter:
@@ -97,6 +142,7 @@ class FoilPlotter:
 
         # Display the plot
         plt.show(block=True)
+
     def plot_drag_force_target_velocity_compare_foils(self, velocity, *other_data_managers):
         # Define a list of colors for the plots. Using 'tab20' for more distinctive colors
         colors = plt.cm.get_cmap('tab20', len(other_data_managers) + 1)  # Including the instance's data manager
@@ -137,6 +183,7 @@ class FoilPlotter:
 
         # To keep the plot open indefinitely, use plt.show(block=True) at the end
         plt.show(block=True)
+
     def plot_cl_cd_at_target_velocity_compare_foils(self, velocity, *other_data_managers):
         # Define a list of colors for the plots. Using 'tab20' for more distinctive colors
         colors = plt.cm.get_cmap('tab20', len(other_data_managers) + 1)  # Including the instance's data manager
@@ -177,6 +224,7 @@ class FoilPlotter:
 
         # To keep the plot open indefinitely, use plt.show(block=True) at the end
         plt.show(block=True)
+
     def plot_cl_cd_at_target_velocities(self, velocities):
         colors = ['blue', 'green', 'red', 'cyan', 'magenta', 'black']
 

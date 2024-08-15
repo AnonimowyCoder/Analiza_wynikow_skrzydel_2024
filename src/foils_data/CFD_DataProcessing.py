@@ -57,3 +57,46 @@ class CFD_DataProcessingMixin:
         # To get interpolated value for specific points
         return griddata(points, values, (angle_of_attack, velocity), method='cubic')
 
+    def get_interpolated_lift_force(self, angle_of_attack, velocity):
+        """
+        Get the interpolated lift force using cubic interpolation.
+        """
+
+        points = self.data[['angle_of_attack', 'inlet_vel']].values
+        values = self.data['lift_force'].values
+
+        # To get interpolated value for specific points
+        return griddata(points, values, (angle_of_attack, velocity), method='cubic')
+
+    def get_interpolated_drag_force_foil(self, angle_of_attack, velocity):
+        """
+        Get the interpolated drag force of foil using cubic interpolation.
+        """
+
+        points = self.data[['angle_of_attack', 'inlet_vel']].values
+        values = self.data['drag_force'].values
+
+        # To get interpolated value for specific points
+        return griddata(points, values, (angle_of_attack, velocity), method='cubic')
+
+    def get_interpolated_drag_force_pylon(self, angle_of_attack, velocity):
+        """
+        Get the interpolated drag force of pylon using cubic interpolation.
+        """
+
+        points = self.data[['angle_of_attack', 'inlet_vel']].values
+        values = self.data['drag_force_pylon'].values
+
+        # To get interpolated value for specific points
+        return griddata(points, values, (angle_of_attack, velocity), method='cubic')
+
+    def get_interpolated_drag_force_mocowanie(self, angle_of_attack, velocity):
+        """
+        Get the interpolated drag force of mocowanie using cubic interpolation.
+        """
+
+        points = self.data[['angle_of_attack', 'inlet_vel']].values
+        values = self.data['drag_force_mocowanie'].values
+
+        # To get interpolated value for specific points
+        return griddata(points, values, (angle_of_attack, velocity), method='cubic')
