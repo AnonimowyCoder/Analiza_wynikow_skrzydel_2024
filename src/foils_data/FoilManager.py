@@ -48,9 +48,9 @@ class FoilManager(DataLoadingMixin, DataCleaningMixin, AFT_DataProcessingMixin, 
         Filter the data by a specific angle of attack.
         
         Parameters:
-        angle (float): The angle of attack to filter by.
+            angle (float): The angle of attack to filter by.
 
         Returns:
-        pd.DataFrame: Filtered DataFrame.
+            pd.DataFrame: Filtered DataFrame.
         """
         return self.data[self.data['angle_of_attack'] == angle]

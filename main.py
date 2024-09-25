@@ -14,11 +14,11 @@ def main():
     plt.style.use('ggplot')
 
     # File paths to the CSV files
-    NACA6409_CFD_path = 'data_CFD/CFD_3D_skrzydla_przednie2023_batmanowe_NACA6409_Wyniki.csv'
-    NACA64A715_CFD_path = 'data_CFD/CFD_3D_skrzydla_przednie2021_owalne_NACA64A715_Wyniki.csv'
+    NACA6409_CFD_path = 'data_CFD/CFD_3D_skrzydla_przednie2023_batmanowe_NACA6409_Wyniki_p.csv'
+    NACA64A715_CFD_path = 'data_CFD/CFD_3D_skrzydla_przednie2021_owalne_NACA64A715_Wyniki_p.csv'
     EPPLER396_CFD_path = 'data_CFD/CFD_2D_EPPLER_396_WYNIKI.csv'
     NACA6409_AFT_path = 'data_AFT/xf-n6409-il-1000000-n5.csv'
-    EPPLER908_CFD_path = 'data_CFD/CFD_3D_skrzydla_tylnie2021_eppler908_Wyniki.csv'
+    EPPLER908_CFD_path = 'data_CFD/CFD_3D_skrzydla_tylnie2021_eppler908_Wyniki_p.csv'
 
     # Initialize DataManagers
     ############################################################
@@ -26,7 +26,7 @@ def main():
                                             NACA6409_CHORD_LENGTH, NACA6409_AREA)
     data_manager_NACA6409_CFD.load_data()
     data_manager_NACA6409_CFD.clean_data()
-    data_manager_NACA6409_CFD.multiply_forces_by_2_CFD()
+    data_manager_NACA6409_CFD.multiply_forces_by_2()
     data_manager_NACA6409_CFD.calculate_lift_coefficient(WATER_DENSITY)
     data_manager_NACA6409_CFD.calculate_drag_coefficient(WATER_DENSITY)
     data_manager_NACA6409_CFD.calculate_cl_cd()
@@ -45,11 +45,10 @@ def main():
                                               NACA64A715_CHORD_LENGTH, NACA64A715_AREA)
     data_manager_NACA64A715_CFD.load_data()
     data_manager_NACA64A715_CFD.clean_data()
-    data_manager_NACA64A715_CFD.multiply_forces_by_2_CFD()
+    data_manager_NACA64A715_CFD.multiply_forces_by_2()
     data_manager_NACA64A715_CFD.calculate_lift_coefficient(WATER_DENSITY)
     data_manager_NACA64A715_CFD.calculate_drag_coefficient(WATER_DENSITY)
     data_manager_NACA64A715_CFD.calculate_cl_cd()
-
 
     #############################################################
     data_manager_EPPLER396 = FoilManager('CFD', 'EPPLER396', EPPLER396_CFD_path)
@@ -61,7 +60,7 @@ def main():
     data_manager_EPPLER908 = FoilManager('CFD', 'EPPLER908', EPPLER908_CFD_path, 0, 0, EPPLER908_AREA)
     data_manager_EPPLER908.load_data()
     data_manager_EPPLER908.clean_data()
-    data_manager_EPPLER908.multiply_forces_by_2_CFD()
+    data_manager_EPPLER908.multiply_forces_by_2()
     data_manager_EPPLER908.calculate_lift_coefficient(WATER_DENSITY)
     data_manager_EPPLER908.calculate_drag_coefficient(WATER_DENSITY)
     data_manager_EPPLER908.calculate_cl_cd()
@@ -82,7 +81,7 @@ def main():
     # compare_foils_drag(plotter_NACA6409_CFD, plotter_EPPLER908_CFD)
     #
     # plotter_NACA6409_CFD.plot_cl_cd_at_target_velocity_compare_foils(7, data_manager_EPPLER396)
-    plotter_EPPLER908_CFD.plot_lift_vs_angle_compare_velocities({8})
+    plotter_EPPLER908_CFD.plot_lift_vs_angle_compare_velocities({7, 7.5, 8},53*GRAVITATIONAL_ACCELERATION)
     plotter_NACA6409_CFD.plot_cl_cd_at_target_velocities({7, 8})
     exit_call = input("Press whatever to exit")
 

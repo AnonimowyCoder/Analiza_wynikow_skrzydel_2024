@@ -90,7 +90,7 @@ class Boat:
 
         # Calculation of position of mass center
         self.mass_center_y_position = front_pylons_y_position - (front_pylons_y_position - rear_pylon_y_position) * (
-                    self.rear_pylon_mass / self.mass)
+                self.rear_pylon_mass / self.mass)
         print('the calculated mass center based of distribution:\nfront', front_pylons_mass_ratio, '\nrear: ',
               1 - front_pylons_mass_ratio)
 
@@ -153,3 +153,11 @@ class Boat:
             "front_pylon_left_mass": self.front_pylon_left_mass
         }
         print(mass_distribution)
+
+
+def calculate_mass_center_based_on_distribution(boat: Boat, front_pylons_mass_ratio):
+    front_pylon_mass = (boat.mass * front_pylons_mass_ratio) / 2
+    rear_pylon_mass = boat.mass - 2 * front_pylon_mass
+    mass_center_y_position = boat.front_pylons_y_position - (boat.front_pylons_y_position - boat.rear_pylon_y_position) * (
+            rear_pylon_mass / boat.mass)
+    return mass_center_y_position

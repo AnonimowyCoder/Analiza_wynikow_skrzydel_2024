@@ -11,7 +11,7 @@ def foil_manager_procedure(data_type, name, path, area):
 
     data_manager.load_data()
     data_manager.clean_data()
-    data_manager.multiply_forces_by_2_CFD()
+    data_manager.multiply_forces_by_2()
     data_manager.calculate_lift_coefficient(WATER_DENSITY)
     data_manager.calculate_drag_coefficient(WATER_DENSITY)
     data_manager.calculate_cl_cd()

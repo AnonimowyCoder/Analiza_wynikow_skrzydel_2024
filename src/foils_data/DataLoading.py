@@ -15,7 +15,9 @@ class DataLoadingMixin:
             self.data = pd.read_csv(self.file_path, skiprows=9)
         elif self.results_type == 'CFD':
             self.data = pd.read_csv(self.file_path, delimiter=';')
-        elif self.results_type == "DRAG":
+        elif self.results_type == "FRONT_DRAG":
+            self.data = pd.read_csv(self.file_path, delimiter=';')
+        elif self.results_type == "REAR_DRAG":
             self.data = pd.read_csv(self.file_path, delimiter=';')
         else:
             print("Wrong results_type format !!!")

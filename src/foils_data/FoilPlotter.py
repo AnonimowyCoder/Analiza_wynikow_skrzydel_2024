@@ -55,7 +55,7 @@ class FoilPlotter:
     def __init__(self, data_manager):
         self.data_manager = data_manager
 
-    def plot_lift_vs_angle_compare_velocities(self, velocities):
+    def plot_lift_vs_angle_compare_velocities(self, velocities, highlight_value=None):
         colors = ['blue', 'green', 'red', 'cyan', 'magenta', 'black']
 
         # Create a figure and an axis
@@ -71,6 +71,8 @@ class FoilPlotter:
                 ax.plot(df_filtered['angle_of_attack'], df_filtered['lift_force'],
                         label=f'Lift Force at {velocity} m/s', color=colors[idx % len(colors)], marker='x')
 
+        if highlight_value is not None:
+            ax.axhline(y=highlight_value, color='red', linestyle='--', label=f'Highlight: {highlight_value} N')
         # Customize the plot
         ax.set_xlabel('Angle of Attack (degrees)')
         ax.set_ylabel('Lift Force (N)')

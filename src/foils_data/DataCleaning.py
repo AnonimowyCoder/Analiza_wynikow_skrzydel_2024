@@ -13,12 +13,29 @@ class DataCleaningMixin:
             self._clean_data_AFT()
         elif self.results_type == "CFD":
             self._clean_data_CFD()
-        elif self.results_type == "DRAG":
-            self._clean_data_DRAG()
+        elif self.results_type == "FRONT_DRAG":
+            self._clean_data_FRONT_DRAG()
+        elif self.results_type == "REAR_DRAG":
+            self._clean_data_REAR_DRAG()
         else:
             print("Wrong results_type format !!!")
 
-    def _clean_data_DRAG(self):
+    def _clean_data_REAR_DRAG(self):
+        self.data.columns = self.data.iloc[0]
+        self.data = self.data[1:]
+        self.data.reset_index(drop=True, inplace=True)
+
+        self.data['inlet_vel'] = pd.to_numeric(self.data['inlet_vel'], errors='coerce').astype('float64')
+        self.data['angle_of_attack'] = pd.to_numeric(self.data['angle_of_attack'], errors='coerce').astype('float64')
+        self.data['lift_force'] = pd.to_numeric(self.data['lift_force'], errors='coerce').astype('float64')
+        self.data['drag_force'] = pd.to_numeric(self.data['drag_force'], errors='coerce').astype('float64')
+        self.data['drag_force_pylon'] = pd.to_numeric(self.data['drag_force_pylon'], errors='coerce').astype('float64')
+        self.data['drag_force_mocowanie'] = pd.to_numeric(self.data['drag_force_mocowanie'], errors='coerce').astype(
+            'float64')
+        self.data['drag_force_gondola'] = pd.to_numeric(self.data['drag_force_gondola'], errors='coerce').astype(
+            'float64')
+        self.data.dropna(inplace=True)
+    def _clean_data_FRONT_DRAG(self):
         self.data.columns = self.data.iloc[0]
         self.data = self.data[1:]
         self.data.reset_index(drop=True, inplace=True)
@@ -46,19 +63,25 @@ class DataCleaningMixin:
         self.data['lift_coefficient'] = pd.to_numeric(self.data['lift_coefficient'], errors='coerce').astype('float64')
         self.data['drag_coefficient'] = pd.to_numeric(self.data['drag_coefficient'], errors='coerce').astype('float64')
 
-    def multiply_forces_by_2_CFD(self):
+    def multiply_forces_by_2(self):
 
         # Multiplies by 2 the moment, lift force and drag force column
         # It is done because results from simulation are for symmetry
-        self.data['moment'] = self.data['moment'] * 2
-        self.data['lift_force'] = self.data['lift_force'] * 2
-        self.data['drag_force'] = self.data['drag_force'] * 2
-
-    def multiply_forces_by_2_DRAG(self):
-        self.data['lift_force'] = self.data['lift_force'] * 2
-        self.data['drag_force'] = self.data['drag_force'] * 2
-        self.data['drag_force_pylon'] = self.data['drag_force_pylon'] * 2
-        self.data['drag_force_mocowanie'] = self.data['drag_force_mocowanie'] * 2
+        if (self.results_type == "CFD"):
+            self.data['moment'] = self.data['moment'] * 2
+            self.data['lift_force'] = self.data['lift_force'] * 2
+            self.data['drag_force'] = self.data['drag_force'] * 2
+        elif (self.results_type == "FRONT_DRAG"):
+            self.data['lift_force'] = self.data['lift_force'] * 2
+            self.data['drag_force'] = self.data['drag_force'] * 2
+            self.data['drag_force_pylon'] = self.data['drag_force_pylon'] * 2
+            self.data['drag_force_mocowanie'] = self.data['drag_force_mocowanie'] * 2
+        elif (self.results_type == "REAR_DRAG"):
+            self.data['lift_force'] = self.data['lift_force'] * 2
+            self.data['drag_force'] = self.data['drag_force'] * 2
+            self.data['drag_force_pylon'] = self.data['drag_force_pylon'] * 2
+            self.data['drag_force_mocowanie'] = self.data['drag_force_mocowanie'] * 2
+            self.data['drag_force_gondola'] = self.data['drag_force_gondola'] * 2
 
     def _clean_data_AFT(self):
         # deleting unnecessary columns
