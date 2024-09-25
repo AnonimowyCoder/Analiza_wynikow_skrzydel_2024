@@ -166,12 +166,12 @@ def Celka_rear_drag_analysis(velocity):
 
     return overall_rear_drag_analysis(EPPLER908_AREA, velocity, data_manager_Rear_Celka_drags)
 
+
 def Celka_overall_lift_analysis():
     script_dir = Path(__file__).resolve().parent
-    Celka_path = script_dir / '..' / '..'/'boat_parameters'/'boat_parameters.csv'
+    Celka_path = script_dir / '..' / '..' / 'boat_parameters' / 'boat_parameters.csv'
     Celka_path = Celka_path.resolve()
     Celka = read_boat_data(Celka_path)
-
 
     # FRONT ###############################
     Front_Celka_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_Celka_2024.csv'
@@ -314,11 +314,11 @@ def not_centered_mass_analysis():
     front_pylon_y_position = 4.3
     front_pylon_x_width = 0.72
     rear_pylon_y_position = 0.7
-    front_mass_ratio = 0.66
+    equal_mass_ratio = 0.666666
     ############################
 
     Delta = Boat(6, 1.6, mass, front_pylon_y_position, front_pylon_x_width, rear_pylon_y_position)
-    Delta.center_of_mass_based_on_front_rear_mass_ratio(front_mass_ratio, front_pylon_y_position, front_pylon_x_width,
+    Delta.center_of_mass_based_on_front_rear_mass_ratio(equal_mass_ratio, front_pylon_y_position, front_pylon_x_width,
                                                         rear_pylon_y_position)
 
     # Foil data preparation
@@ -337,11 +337,12 @@ def not_centered_mass_analysis():
     ################################
     # ASSUMPTIONS
     # target_velocity is the velocity for which the boat is designed. At that velocity the boat should have optimal aoa
-    # on foils - at the highest cl/cd value. That is at +1 deg for NACA6409
-    target_velocity = 6.5
-    front_target_aoa = 1
-    rear_target_aoa = 1
+    # on foils - at the highest cl/cd value. That is at 0 deg for NACA6409
+    target_velocity = 8
+    front_target_aoa = 0
+    rear_target_aoa = 0
 
+    # The areas are calculated for given velocity, aoa, and profile
     rear_foil_area, front_foil_area = overall_lift_analysis(target_velocity, data_manager_New_Boat_drags,
                                                             front_target_aoa,
                                                             data_manager_New_Boat_drags, rear_target_aoa, Delta)
@@ -349,11 +350,19 @@ def not_centered_mass_analysis():
     print("Rear foil area is: ", rear_foil_area)
     print("Front foil area is: ", front_foil_area)
 
+    # Case 1. The areas are calculated for equal mass distribution. Let's consider unequal mass distribution,
+    # and correct the produced lift force with different aoa
+
+    unequal_mass_ratio = 0.7
+    Delta.center_of_mass_based_on_front_rear_mass_ratio(unequal_mass_ratio, front_pylon_y_position, front_pylon_x_width,
+                                                        rear_pylon_y_position)
+    # TODO Utowrzyć funkcje która wyznacza kąt natarcia potrzebny do wyprodukowania danego liftu przy danej powierzchni
+    # TODO Wykorzystać funkcję overall front drag analysis do wyznaczenia dragu dla równego i nierównego rozkładu
+    # TODO Zrobić pętle, która będzie wyznaczać to dla różnych stopni nierównego rozkładu, utworzyć wykres
 
 #####################################
 #               KODZIK
 #####################################
 
-# Celka_overall_drag_analysis()
-# not_centered_mass_analysis()
-Celka_overall_lift_analysis()
+
+not_centered_mass_analysis()
