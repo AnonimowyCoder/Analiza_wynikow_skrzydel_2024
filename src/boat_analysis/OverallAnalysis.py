@@ -1,3 +1,8 @@
+import numpy as np
+from matplotlib import pyplot as plt, cm
+from scipy.interpolate import Rbf, LinearNDInterpolator, interp2d
+from scipy.optimize import fsolve
+
 from src.boat_analysis.Boat import Boat, read_boat_data
 from src.boat_analysis.PowerConsumption import power_consumption
 from src.foils_data.FoilManager import FoilManager
@@ -7,6 +12,65 @@ from pathlib import Path
 
 
 # Module to realize the algorithm of modelling a flight
+
+def _calculate_aoa_based_on_area(target_foil_area, target_velocity, pylon_mass, foilManager: FoilManager):
+    """
+    Method to calculate aoa based on the given foil area, to produce given Lift Force.
+    """
+    # Calculate lift_coefficient using formula
+    lift_coefficient = (2 * pylon_mass * GRAVITATIONAL_ACCELERATION) / (
+            WATER_DENSITY * target_foil_area * pow(target_velocity, 2))
+
+    return _find_angle_of_attack(target_velocity, lift_coefficient, foilManager.data)
+
+
+def _find_angle_of_attack(inlet_vel, desired_lift_coefficient, df):
+    # Get unique angle_of_attack values
+    angle_of_attack_unique = np.unique(df['angle_of_attack'].values)
+
+    lift_coeff_list = []
+
+    for angle in angle_of_attack_unique:
+        # Get data for this angle_of_attack
+        df_angle = df[df['angle_of_attack'] == angle]
+        inlet_vels = df_angle['inlet_vel'].values
+        lift_coeffs = df_angle['lift_coefficient'].values
+
+        # Check if inlet_vel is within the range for this angle
+        if inlet_vel < inlet_vels.min() or inlet_vel > inlet_vels.max():
+            # Cannot interpolate, skip this angle
+            continue
+
+        # Interpolate lift_coefficient at desired inlet_vel
+        lift_coeff_interp = np.interp(inlet_vel, inlet_vels, lift_coeffs)
+        lift_coeff_list.append((angle, lift_coeff_interp))
+
+    if not lift_coeff_list:
+        raise ValueError(f"No data available to interpolate for inlet_vel={inlet_vel}")
+
+    # Now, we have lift_coefficient vs angle_of_attack at the desired inlet_vel
+    angles = np.array([item[0] for item in lift_coeff_list])
+    lift_coeffs = np.array([item[1] for item in lift_coeff_list])
+
+    # Check if desired_lift_coefficient is within the range
+    lift_coeff_min = lift_coeffs.min()
+    lift_coeff_max = lift_coeffs.max()
+
+    if desired_lift_coefficient < lift_coeff_min or desired_lift_coefficient > lift_coeff_max:
+        raise ValueError(
+            f"Desired lift coefficient {desired_lift_coefficient} is outside the achievable range "
+            f"[{lift_coeff_min}, {lift_coeff_max}] at inlet_vel={inlet_vel}"
+        )
+
+    # Interpolate angle_of_attack as a function of lift_coefficient
+    sorted_indices = np.argsort(lift_coeffs)
+    lift_coeffs_sorted = lift_coeffs[sorted_indices]
+    angles_sorted = angles[sorted_indices]
+
+    angle_interp = np.interp(desired_lift_coefficient, lift_coeffs_sorted, angles_sorted)
+
+    return angle_interp
+
 
 def _calculate_foil_area(target_angle_of_attack, target_velocity, pylon_mass, foilManager: FoilManager):
     """
@@ -333,14 +397,15 @@ def not_centered_mass_analysis():
     data_manager_New_Boat_drags.multiply_forces_by_2()
     data_manager_New_Boat_drags.calculate_lift_coefficient(WATER_DENSITY)
     data_manager_New_Boat_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_New_Boat_drags.calculate_cl_cd()
 
     ################################
     # ASSUMPTIONS
     # target_velocity is the velocity for which the boat is designed. At that velocity the boat should have optimal aoa
     # on foils - at the highest cl/cd value. That is at 0 deg for NACA6409
     target_velocity = 8
-    front_target_aoa = 0
-    rear_target_aoa = 0
+    front_target_aoa = 1
+    rear_target_aoa = 1
 
     # The areas are calculated for given velocity, aoa, and profile
     rear_foil_area, front_foil_area = overall_lift_analysis(target_velocity, data_manager_New_Boat_drags,
@@ -350,19 +415,152 @@ def not_centered_mass_analysis():
     print("Rear foil area is: ", rear_foil_area)
     print("Front foil area is: ", front_foil_area)
 
+    print("\n\n CONSIDERING UNEQUAL DISTRIBUTION\n\n")
+
     # Case 1. The areas are calculated for equal mass distribution. Let's consider unequal mass distribution,
     # and correct the produced lift force with different aoa
 
-    unequal_mass_ratio = 0.7
+    unequal_mass_ratio = 0.75
     Delta.center_of_mass_based_on_front_rear_mass_ratio(unequal_mass_ratio, front_pylon_y_position, front_pylon_x_width,
                                                         rear_pylon_y_position)
-    # TODO Utowrzyć funkcje która wyznacza kąt natarcia potrzebny do wyprodukowania danego liftu przy danej powierzchni
-    # TODO Wykorzystać funkcję overall front drag analysis do wyznaczenia dragu dla równego i nierównego rozkładu
-    # TODO Zrobić pętle, która będzie wyznaczać to dla różnych stopni nierównego rozkładu, utworzyć wykres
+    # Now the mass on pylons is updated
+    # AoA for unequal distribution is calculated
+    unequal_front_aoa = _calculate_aoa_based_on_area(front_foil_area, target_velocity, Delta.front_pylon_left_mass,
+                                                     data_manager_New_Boat_drags)
+    unequal_rear_aoa = _calculate_aoa_based_on_area(rear_foil_area, target_velocity, Delta.rear_pylon_mass,
+                                                    data_manager_New_Boat_drags)
 
+    print("AoA for front pylon is: ", unequal_front_aoa)
+    print("Aoa for rear pylon is: ", unequal_rear_aoa)
+
+    # Calculation of drag forces
+    # EQUAL distribution:
+
+    print("\n CALCULATION OF DRAG FORCES \n")
+    equal_front_foil_drag, equal_front_pylon_drag, equal_front_mocowanie_drag = overall_front_drag_analysis(
+        front_foil_area, target_velocity, data_manager_New_Boat_drags, front_target_aoa)
+
+    # UNEQUAL distribution:
+    # Front:
+    unequal_front_foil_drag, unequal_front_pylon_drag, unequal_front_mocowanie_drag = overall_front_drag_analysis(
+        front_foil_area, target_velocity, data_manager_New_Boat_drags, unequal_front_aoa)
+
+    unequal_rear_foil_drag, unequal_rear_pylon_drag, unequal_rear_mocowanie_drag = overall_front_drag_analysis(
+        rear_foil_area, target_velocity, data_manager_New_Boat_drags, unequal_rear_aoa)
+
+    equal_sum = (equal_front_foil_drag + equal_front_pylon_drag + equal_front_mocowanie_drag) * 3
+    # Equal distribution:
+    print("Equal Distribution Front Drags:")
+    print(f"  Foil Drag: {equal_front_foil_drag}")
+    print(f"  Pylon Drag: {equal_front_pylon_drag}")
+    print(f"  Mocowanie Drag: {equal_front_mocowanie_drag}\n")
+    print(f"  Sum of all drag forces: {equal_sum}\n\n")
+
+    unequal_sum = (unequal_front_foil_drag + unequal_front_pylon_drag + unequal_front_mocowanie_drag) * 2 + unequal_rear_foil_drag + unequal_rear_pylon_drag + unequal_rear_mocowanie_drag
+    # Unequal distribution (Front):
+    print("Unequal Distribution Front Drags:")
+    print(f"  Foil Drag: {unequal_front_foil_drag}")
+    print(f"  Pylon Drag: {unequal_front_pylon_drag}")
+    print(f"  Mocowanie Drag: {unequal_front_mocowanie_drag}\n")
+
+    # Unequal distribution (Rear):
+    print("Unequal Distribution Rear Drags:")
+    print(f"  Foil Drag: {unequal_rear_foil_drag}")
+    print(f"  Pylon Drag: {unequal_rear_pylon_drag}")
+    print(f"  Mocowanie Drag: {unequal_rear_mocowanie_drag}")
+    print(f"  Sum of all drag forces: {unequal_sum}\n\n")
+
+    print(f"  Difference in sum drag forces: {unequal_sum-equal_sum}\n\n")
+    print(f"  Percentage increase relative to an equal distribution: {((unequal_sum-equal_sum)/unequal_sum)*100}%")
+
+    # PLOTTING MODULE
+
+    Foil_Plotter_New_Boat = FoilPlotter(data_manager_New_Boat_drags)
+    Foil_Plotter_New_Boat.plot_cl_cd_at_target_velocity_compare_foils(8)
+
+def not_centered_mass_analysis_V2():
+    # Creation of boat
+    # Delta Parameters:
+    mass = 170
+    front_pylon_x_position = 4.3
+    front_pylon_y_width = 0.72
+    rear_pylon_x_position = 0.7
+    equal_mass_ratio = 0.666666
+    ############################
+
+    Delta = Boat(6, 1.6, mass, front_pylon_x_position, front_pylon_y_width, rear_pylon_x_position)
+    Delta.center_of_mass_based_on_front_rear_mass_ratio(equal_mass_ratio, front_pylon_x_position, front_pylon_y_width,
+                                                        rear_pylon_x_position)
+
+    # Foil data preparation
+    script_dir = Path(__file__).resolve().parent
+    New_Boat_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_nowy_pylon.csv'
+    New_Boat_drags_path = New_Boat_drags_path.resolve()
+
+    data_manager_New_Boat_drags = FoilManager('FRONT_DRAG', 'New Front pylons', New_Boat_drags_path, 0, 0,
+                                              NACA6409_AREA)
+    data_manager_New_Boat_drags.load_data()
+    data_manager_New_Boat_drags.clean_data()
+    data_manager_New_Boat_drags.multiply_forces_by_2()
+    data_manager_New_Boat_drags.calculate_lift_coefficient(WATER_DENSITY)
+    data_manager_New_Boat_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_New_Boat_drags.calculate_cl_cd()
+
+    ################################
+    # ASSUMPTIONS
+    # target_velocity is the velocity for which the boat is designed. At that velocity the boat should have optimal aoa
+    # on foils - at the highest cl/cd value. That is at 0 deg for NACA6409
+    target_velocity = 8.3
+    front_target_aoa = 1
+    rear_target_aoa = 1
+
+    # The areas are calculated for given velocity, aoa, and profile
+    rear_foil_area, front_foil_area = overall_lift_analysis(target_velocity, data_manager_New_Boat_drags,
+                                                            front_target_aoa,
+                                                            data_manager_New_Boat_drags, rear_target_aoa, Delta)
+
+    print("Rear foil area is: ", rear_foil_area)
+    print("Front foil area is: ", front_foil_area)
+
+    # Arrays to store mass ratios and corresponding drag forces
+    mass_ratios = np.linspace(0.5, 0.8, 36)  # Mass ratios from 0.5 to 0.85
+    drag_forces = []
+
+    for unequal_mass_ratio in mass_ratios:
+        # Update the center of mass based on the new mass ratio
+        Delta.center_of_mass_based_on_front_rear_mass_ratio(unequal_mass_ratio, front_pylon_x_position,
+                                                            front_pylon_y_width, rear_pylon_x_position)
+        # Calculate AoA for front and rear foils based on the new mass distribution
+        unequal_front_aoa = _calculate_aoa_based_on_area(front_foil_area, target_velocity,
+                                                         Delta.front_pylon_left_mass, data_manager_New_Boat_drags)
+        unequal_rear_aoa = _calculate_aoa_based_on_area(rear_foil_area, target_velocity, Delta.rear_pylon_mass,
+                                                        data_manager_New_Boat_drags)
+
+        # Calculation of drag forces for front and rear foils
+        unequal_front_foil_drag, unequal_front_pylon_drag, unequal_front_mocowanie_drag = overall_front_drag_analysis(
+            front_foil_area, target_velocity, data_manager_New_Boat_drags, unequal_front_aoa)
+
+        unequal_rear_foil_drag, unequal_rear_pylon_drag, unequal_rear_mocowanie_drag = overall_front_drag_analysis(
+            rear_foil_area, target_velocity, data_manager_New_Boat_drags, unequal_rear_aoa)
+
+        # Sum of all drag forces
+        unequal_sum = (unequal_front_foil_drag + unequal_front_pylon_drag + unequal_front_mocowanie_drag) * 2 + \
+                      unequal_rear_foil_drag + unequal_rear_pylon_drag + unequal_rear_mocowanie_drag
+
+        # Append the results to arrays
+        drag_forces.append(unequal_sum)
+
+    # Plotting the results
+    plt.figure(figsize=(10, 6))
+    plt.plot(mass_ratios, drag_forces, marker='o', linestyle='-', color='b')
+    plt.title('Total Drag Force vs Mass Ratio')
+    plt.xlabel('Mass Ratio (Front Mass / Total Mass)')
+    plt.ylabel('Total Drag Force (N)')
+    plt.grid(True)
+    plt.show()
 #####################################
 #               KODZIK
 #####################################
 
-
 not_centered_mass_analysis()
+#not_centered_mass_analysis_V2()

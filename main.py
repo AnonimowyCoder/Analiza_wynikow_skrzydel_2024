@@ -81,8 +81,9 @@ def main():
     # compare_foils_drag(plotter_NACA6409_CFD, plotter_EPPLER908_CFD)
     #
     # plotter_NACA6409_CFD.plot_cl_cd_at_target_velocity_compare_foils(7, data_manager_EPPLER396)
-    plotter_EPPLER908_CFD.plot_lift_vs_angle_compare_velocities({7, 7.5, 8},53*GRAVITATIONAL_ACCELERATION)
-    plotter_NACA6409_CFD.plot_cl_cd_at_target_velocities({7, 8})
+    #plotter_EPPLER908_CFD.plot_lift_vs_angle_compare_velocities({7, 7.5, 8},53*GRAVITATIONAL_ACCELERATION)
+    #plotter_NACA6409_CFD.plot_cl_cd_at_target_velocities({7, 8})
+    plotter_NACA6409_CFD.plot_drag_force_target_velocity_compare_foils(8)
     exit_call = input("Press whatever to exit")
 
 
