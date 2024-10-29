@@ -261,8 +261,8 @@ def Celka_overall_lift_analysis():
     data_manager_Rear_Celka_drags.calculate_lift_coefficient(WATER_DENSITY)
     data_manager_Rear_Celka_drags.calculate_drag_coefficient(WATER_DENSITY)
 
-    target_velocity = 7.7
-    front_target_aoa = 0.5
+    target_velocity = 7.5
+    front_target_aoa = 0.7
     rear_target_aoa = 0
 
     rear_foil_area, front_foil_area = overall_lift_analysis(target_velocity, data_manager_Front_Celka_drags,
@@ -403,9 +403,9 @@ def not_centered_mass_analysis():
     # ASSUMPTIONS
     # target_velocity is the velocity for which the boat is designed. At that velocity the boat should have optimal aoa
     # on foils - at the highest cl/cd value. That is at 0 deg for NACA6409
-    target_velocity = 8
+    target_velocity = 8.4
     front_target_aoa = 1
-    rear_target_aoa = 1
+    rear_target_aoa = 0.5
 
     # The areas are calculated for given velocity, aoa, and profile
     rear_foil_area, front_foil_area = overall_lift_analysis(target_velocity, data_manager_New_Boat_drags,
@@ -420,7 +420,7 @@ def not_centered_mass_analysis():
     # Case 1. The areas are calculated for equal mass distribution. Let's consider unequal mass distribution,
     # and correct the produced lift force with different aoa
 
-    unequal_mass_ratio = 0.75
+    unequal_mass_ratio = 0.55
     Delta.center_of_mass_based_on_front_rear_mass_ratio(unequal_mass_ratio, front_pylon_y_position, front_pylon_x_width,
                                                         rear_pylon_y_position)
     # Now the mass on pylons is updated
@@ -510,7 +510,7 @@ def not_centered_mass_analysis_V2():
     # ASSUMPTIONS
     # target_velocity is the velocity for which the boat is designed. At that velocity the boat should have optimal aoa
     # on foils - at the highest cl/cd value. That is at 0 deg for NACA6409
-    target_velocity = 8.3
+    target_velocity = 6
     front_target_aoa = 1
     rear_target_aoa = 1
 
@@ -523,7 +523,7 @@ def not_centered_mass_analysis_V2():
     print("Front foil area is: ", front_foil_area)
 
     # Arrays to store mass ratios and corresponding drag forces
-    mass_ratios = np.linspace(0.5, 0.8, 36)  # Mass ratios from 0.5 to 0.85
+    mass_ratios = np.linspace(0.5, 0.8, 36)  # Mass ratios from 0.5 to 0.8
     drag_forces = []
 
     for unequal_mass_ratio in mass_ratios:
@@ -564,3 +564,4 @@ def not_centered_mass_analysis_V2():
 
 not_centered_mass_analysis()
 #not_centered_mass_analysis_V2()
+#Celka_overall_lift_analysis()
