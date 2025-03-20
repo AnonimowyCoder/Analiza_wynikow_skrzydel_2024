@@ -186,11 +186,11 @@ def general_analysis():
     if (sim_number == '1'):
         front_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_nowy_pylon.csv'
         front_path = front_path.resolve()
-        front_manager = FoilManager('FRONT_DRAG', 'New Front pylons', front_path, 0, 0, NACA6409_AREA)
+        front_manager = FoilManager('FRONT_DRAG', 'New Front pylons', front_path,  NACA6409_AREA)
     elif (sim_number == '2'):
         front_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_Celka_2024.csv'
         front_path = front_path.resolve()
-        front_manager = FoilManager('FRONT_DRAG', 'Old Front pylons', front_path, 0, 0, NACA6409_AREA)
+        front_manager = FoilManager('FRONT_DRAG', 'Old Front pylons', front_path,  NACA6409_AREA)
     else:
         print("Wrong simulation number")
 
@@ -200,13 +200,13 @@ def Celka_front_drag_analysis(angle_of_attack, velocity):
     Front_Celka_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_Celka_2024.csv'
     Front_Celka_drags_path = Front_Celka_drags_path.resolve()
 
-    data_manager_Front_Celka_drags = FoilManager('FRONT_DRAG', 'Front pylons', Front_Celka_drags_path, 0, 0,
+    data_manager_Front_Celka_drags = FoilManager('FRONT_DRAG', 'Front pylons', Front_Celka_drags_path,
                                                  NACA6409_AREA)
     data_manager_Front_Celka_drags.load_data()
     data_manager_Front_Celka_drags.clean_data()
     data_manager_Front_Celka_drags.multiply_forces_by_2()
-    data_manager_Front_Celka_drags.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager_Front_Celka_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_Front_Celka_drags.calculate_lift_coefficient()
+    data_manager_Front_Celka_drags.calculate_drag_coefficient()
 
     front_foil_drag, front_pylon_drag, front_mocowanie_drag = overall_front_drag_analysis(NACA6409_AREA, velocity,
                                                                                           data_manager_Front_Celka_drags,
@@ -220,13 +220,13 @@ def Celka_rear_drag_analysis(velocity):
     Rear_Celka_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_Celka_tyl_gondola.csv'
     Rear_Celka_drags_path = Rear_Celka_drags_path.resolve()
 
-    data_manager_Rear_Celka_drags = FoilManager('REAR_DRAG', 'Front pylons', Rear_Celka_drags_path, 0, 0,
+    data_manager_Rear_Celka_drags = FoilManager('REAR_DRAG', 'Front pylons', Rear_Celka_drags_path,
                                                 EPPLER908_AREA)
     data_manager_Rear_Celka_drags.load_data()
     data_manager_Rear_Celka_drags.clean_data()
     data_manager_Rear_Celka_drags.multiply_forces_by_2()
-    data_manager_Rear_Celka_drags.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager_Rear_Celka_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_Rear_Celka_drags.calculate_lift_coefficient()
+    data_manager_Rear_Celka_drags.calculate_drag_coefficient()
 
     return overall_rear_drag_analysis(EPPLER908_AREA, velocity, data_manager_Rear_Celka_drags)
 
@@ -241,25 +241,25 @@ def Celka_overall_lift_analysis():
     Front_Celka_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_Celka_2024.csv'
     Front_Celka_drags_path = Front_Celka_drags_path.resolve()
 
-    data_manager_Front_Celka_drags = FoilManager('FRONT_DRAG', 'Front pylons', Front_Celka_drags_path, 0, 0,
+    data_manager_Front_Celka_drags = FoilManager('FRONT_DRAG', 'Front pylons', Front_Celka_drags_path,
                                                  NACA6409_AREA)
     data_manager_Front_Celka_drags.load_data()
     data_manager_Front_Celka_drags.clean_data()
     data_manager_Front_Celka_drags.multiply_forces_by_2()
-    data_manager_Front_Celka_drags.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager_Front_Celka_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_Front_Celka_drags.calculate_lift_coefficient()
+    data_manager_Front_Celka_drags.calculate_drag_coefficient()
 
     # REAR ##################################
     Rear_Celka_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_Celka_tyl_gondola.csv'
     Rear_Celka_drags_path = Rear_Celka_drags_path.resolve()
 
-    data_manager_Rear_Celka_drags = FoilManager('REAR_DRAG', 'Front pylons', Rear_Celka_drags_path, 0, 0,
+    data_manager_Rear_Celka_drags = FoilManager('REAR_DRAG', 'Front pylons', Rear_Celka_drags_path,
                                                 EPPLER908_AREA)
     data_manager_Rear_Celka_drags.load_data()
     data_manager_Rear_Celka_drags.clean_data()
     data_manager_Rear_Celka_drags.multiply_forces_by_2()
-    data_manager_Rear_Celka_drags.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager_Rear_Celka_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_Rear_Celka_drags.calculate_lift_coefficient()
+    data_manager_Rear_Celka_drags.calculate_drag_coefficient()
 
     target_velocity = 7.5
     front_target_aoa = 0.7
@@ -297,23 +297,23 @@ def new_boat_front_drag_analysis():
     New_Boat_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_nowy_pylon.csv'
     New_Boat_drags_path = New_Boat_drags_path.resolve()
 
-    data_manager_New_Boat_drags = FoilManager('FRONT_DRAG', 'New Front pylons', New_Boat_drags_path, 0, 0,
+    data_manager_New_Boat_drags = FoilManager('FRONT_DRAG', 'New Front pylons', New_Boat_drags_path,
                                               NACA6409_AREA)
     data_manager_New_Boat_drags.load_data()
     data_manager_New_Boat_drags.clean_data()
     data_manager_New_Boat_drags.multiply_forces_by_2()
-    data_manager_New_Boat_drags.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager_New_Boat_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_New_Boat_drags.calculate_lift_coefficient()
+    data_manager_New_Boat_drags.calculate_drag_coefficient()
 
     EPPLER908_CFD_path = script_dir / '..' / '..' / 'data_CFD' / 'CFD_3D_skrzydla_tylnie2021_eppler908_Wyniki_p.csv'
     EPPLER908_CFD_path = EPPLER908_CFD_path.resolve()
 
-    data_manager_EPPLER908 = FoilManager('CFD', 'EPPLER 908', EPPLER908_CFD_path, 0, 0, EPPLER908_AREA)
+    data_manager_EPPLER908 = FoilManager('CFD', 'EPPLER 908', EPPLER908_CFD_path,  EPPLER908_AREA)
     data_manager_EPPLER908.load_data()
     data_manager_EPPLER908.clean_data()
     data_manager_EPPLER908.multiply_forces_by_2()
-    data_manager_EPPLER908.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager_EPPLER908.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_EPPLER908.calculate_lift_coefficient()
+    data_manager_EPPLER908.calculate_drag_coefficient()
     data_manager_EPPLER908.calculate_cl_cd()
 
     Celka = Boat(6.039, 1.69, 170)
@@ -390,13 +390,13 @@ def not_centered_mass_analysis():
     New_Boat_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_nowy_pylon.csv'
     New_Boat_drags_path = New_Boat_drags_path.resolve()
 
-    data_manager_New_Boat_drags = FoilManager('FRONT_DRAG', 'New Front pylons', New_Boat_drags_path, 0, 0,
+    data_manager_New_Boat_drags = FoilManager('FRONT_DRAG', 'New Front pylons', New_Boat_drags_path,
                                               NACA6409_AREA)
     data_manager_New_Boat_drags.load_data()
     data_manager_New_Boat_drags.clean_data()
     data_manager_New_Boat_drags.multiply_forces_by_2()
-    data_manager_New_Boat_drags.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager_New_Boat_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_New_Boat_drags.calculate_lift_coefficient()
+    data_manager_New_Boat_drags.calculate_drag_coefficient()
     data_manager_New_Boat_drags.calculate_cl_cd()
 
     ################################
@@ -498,13 +498,13 @@ def not_centered_mass_analysis_V2():
     New_Boat_drags_path = script_dir / '..' / '..' / 'data_overall_drag' / 'CFD_3D_opory_latania_nowy_pylon.csv'
     New_Boat_drags_path = New_Boat_drags_path.resolve()
 
-    data_manager_New_Boat_drags = FoilManager('FRONT_DRAG', 'New Front pylons', New_Boat_drags_path, 0, 0,
+    data_manager_New_Boat_drags = FoilManager('FRONT_DRAG', 'New Front pylons', New_Boat_drags_path,
                                               NACA6409_AREA)
     data_manager_New_Boat_drags.load_data()
     data_manager_New_Boat_drags.clean_data()
     data_manager_New_Boat_drags.multiply_forces_by_2()
-    data_manager_New_Boat_drags.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager_New_Boat_drags.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_New_Boat_drags.calculate_lift_coefficient()
+    data_manager_New_Boat_drags.calculate_drag_coefficient()
     data_manager_New_Boat_drags.calculate_cl_cd()
 
     ################################

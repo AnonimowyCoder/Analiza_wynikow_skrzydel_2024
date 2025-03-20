@@ -1,9 +1,10 @@
 import numpy as np
 from scipy.interpolate import griddata, interp1d, Rbf
+from src.utilities.Constants import WATER_DENSITY
 
 
 class CFD_DataProcessingMixin:
-    def calculate_lift_coefficient(self, density):
+    def calculate_lift_coefficient(self):
         """
         Calculate the lift coefficient using lift force.
 
@@ -12,9 +13,9 @@ class CFD_DataProcessingMixin:
         lift_coefficient = (2 * lift_force) / (density * velocity^2 * area)
         """
         self.data['lift_coefficient'] = (2 * self.data['lift_force']) / (
-                density * pow(self.data['inlet_vel'], 2) * self.m2_foil_area)
+                WATER_DENSITY * pow(self.data['inlet_vel'], 2) * self.m2_foil_area)
 
-    def calculate_drag_coefficient(self, density):
+    def calculate_drag_coefficient(self):
         """
         Calculate the drag coefficient using drag force.
 
@@ -23,7 +24,7 @@ class CFD_DataProcessingMixin:
         drag_coefficient = (2 * drag_force) / (density * velocity^2 * area)
         """
         self.data['drag_coefficient'] = (2 * self.data['drag_force']) / (
-                density * pow(self.data['inlet_vel'], 2) * self.m2_foil_area)
+                WATER_DENSITY * pow(self.data['inlet_vel'], 2) * self.m2_foil_area)
 
     def calculate_cl_cd(self):
         """
@@ -35,31 +36,48 @@ class CFD_DataProcessingMixin:
         """
         self.data['cl_cd'] = self.data['lift_coefficient'] / self.data['drag_coefficient']
 
+    def calculate_moment_coefficient(self):
+        """
+        Calculate the moment coefficient using moment force.
+
+        **REQUIRES PROPER CHORD LENGTH INITIALIZATION**
+
+        Formula
+
+        Cm = 2*Moment/(density * velocity^2 * area * chord_length)
+
+        """
+        if self.m_chord_length == 0.0:
+            raise ValueError("Chord lentgh isn't properly initializated - can't calculate moment coefficient.")
+
+        self.data['moment_coefficient'] = 2 * self.data['moment'] / (
+                    WATER_DENSITY * pow(self.data['inlet_vel'], 2) * self.m2_foil_area * self.m_chord_length)
+
     def calculate_pressure_center(self, x1=0.0):
         """
         Calculate the pressure center of a foil, where the returning value is value (0,1) representing position on the foil
 
         Formula
 
-        Xcp = x1 - Cm1/Cl
+        Xcp = -(x1 - Cm1/Cl)
 
         where:
         Xcp - position of pressure center
         x1 - position of the axis on the chord for which moment force is calculated
-        Cm1 - Moment force over axis x1
-        Cl - Lift Force of the foil
+        Cm1 - Moment coefficient over axis x1
+        Cl - Lift coefficient of the foil
 
         Parameters:
-            x1 - position of the axis on the chord for which moment force is calculated
+            x1 - position of the axis on the chord for which moment coefficient is calculated
         """
-        self.data['pressure_center'] = x1 - self.data['moment'] / self.data['lift_force']
+        self.data['pressure_center'] = -(x1 - self.data['moment_coefficient'] / self.data['lift_coefficient'])
 
     def get_interpolated_value(self, column_name, angle_of_attack, velocity):
         """
         Generic method to get the interpolated value for a given column using cubic interpolation.
 
         Parameters:
-        - column_name: str, the name of the column to interpolate.
+        - column_name: str, the foil_name of the column to interpolate.
         - angle_of_attack: float or array-like, the angle(s) of attack at which to interpolate.
         - velocity: float or array-like, the velocity(ies) at which to interpolate.
 
@@ -139,8 +157,8 @@ class CFD_DataProcessingMixin:
         """
         return self.get_interpolated_value('moment', angle_of_attack, velocity)
 
-    def get_interpolated_pressure_center(self,angle_of_attack, velocity):
+    def get_interpolated_pressure_center(self, angle_of_attack, velocity):
         """
         Get the interpolated pressure center of a foil.
         """
-        return self.get_interpolated_value('pressure_center',angle_of_attack,velocity)
+        return self.get_interpolated_value('pressure_center', angle_of_attack, velocity)

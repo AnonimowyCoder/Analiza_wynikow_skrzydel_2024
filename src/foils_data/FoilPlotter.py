@@ -477,3 +477,41 @@ class FoilPlotter:
         ax.set_title(f'Drag Force vs. AoA at {velocity} m/s')
         ax.grid(True)
         ax.legend()
+
+    def plot_pressure_center_vs_angle_at_target_velocities(self, velocities):
+        colors = ['blue', 'green', 'red', 'cyan', 'magenta', 'black']
+
+        fig, ax = plt.subplots()
+
+        for idx, velocity in enumerate(velocities):
+            df_filtered = self.data_manager.filter_data_by_velocity(velocity)
+
+            if df_filtered.empty:
+                print(f'Brak danych dla prędkości {velocity} m/s')
+                continue
+
+            df_filtered = df_filtered.sort_values(by='angle_of_attack')
+
+            x = df_filtered['angle_of_attack'].values
+            y = df_filtered['pressure_center'].values
+
+            # Interpolacja dla płynniejszej krzywej
+            if len(x) > 2:
+                x_smooth = np.linspace(x.min(), x.max(), 200)
+                spline = make_interp_spline(x, y, k=3)
+                y_smooth = spline(x_smooth)
+                ax.plot(x_smooth, y_smooth, color=colors[idx % len(colors)], label=f'Pressure Center at {velocity} m/s')
+            else:
+                ax.plot(x, y, color=colors[idx % len(colors)], label=f'Pressure Center at {velocity} m/s')
+
+            # Oryginalne punkty danych
+            ax.scatter(x, y, color=colors[idx % len(colors)], marker='x')
+
+        # Konfiguracja wykresu
+        ax.set_xlabel('Angle of Attack (°)')
+        ax.set_ylabel('Pressure Center Position on Chord')
+        ax.set_title(f'Pressure Center vs Angle of Attack for {self.data_manager.foil_name}')
+        ax.grid(True)
+        ax.legend()
+
+        plt.show(block=True)

@@ -2,21 +2,8 @@ from pathlib import Path
 
 from src.foils_data.FoilPlotter import FoilPlotter
 from src.utilities.Constants import *
-
+from src.foils_data.FoilManager import FoilManager, foil_manager_procedure
 from src.foils_data.FoilManager import FoilManager
-
-
-def foil_manager_procedure(data_type, name, path, area):
-    data_manager = FoilManager(data_type, name, path, 0, 0, area)
-
-    data_manager.load_data()
-    data_manager.clean_data()
-    data_manager.multiply_forces_by_2()
-    data_manager.calculate_lift_coefficient(WATER_DENSITY)
-    data_manager.calculate_drag_coefficient(WATER_DENSITY)
-    data_manager.calculate_cl_cd()
-
-    return data_manager
 
 
 script_dir = Path(__file__).resolve().parent

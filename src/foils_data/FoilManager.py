@@ -6,26 +6,41 @@ from src.foils_data.AFT_DataProcessing import AFT_DataProcessingMixin
 from src.foils_data.CFD_DataProcessing import CFD_DataProcessingMixin
 
 
+def foil_manager_procedure(data_type, foil_name, path, area, chord_length, multiply_by_2: bool = True,
+                           calculate_pressure_center: bool = True):
+    data_manager = FoilManager(data_type, foil_name, path, area, chord_length)
+
+    data_manager.load_data()
+    data_manager.clean_data()
+    if multiply_by_2:
+        data_manager.multiply_forces_by_2()
+    data_manager.calculate_lift_coefficient()
+    data_manager.calculate_drag_coefficient()
+    if calculate_pressure_center:
+        data_manager.calculate_moment_coefficient()
+        data_manager.calculate_pressure_center()
+    data_manager.calculate_cl_cd()
+
+    return data_manager
+
+
 class FoilManager(DataLoadingMixin, DataCleaningMixin, AFT_DataProcessingMixin, CFD_DataProcessingMixin):
-    def __init__(self, results_type: str, foil_name: str, file_path: str, m_foil_total_length: float = 0.0,
-                 m_foil_chord_length: float = 0.0, m2_foil_area: float = 0.0):
+    def __init__(self, results_type: str, foil_name: str, file_path: str, m2_foil_area: float, m_chord_length=0.0):
         """
         Initializes DataManager which stores single profile's data.
 
         Parameters:
             results_type (str): type of format of results, eg. AFT, CFD.
-            foil_name (str): name of foil.
+            foil_name (str): foil_name of foil.
             file_path (str): path to the csv data of foil.
-            m_foil_total_length (int): total length in m of foil.
-            m_foil_chord_length (int): chord length in m of foil.
-            m2_foil_area (int): area of foil in m2.
+            m2_foil_area (float): area of foil in m2.
+            m_chord_length (float): length of chord of foil in m.
         """
         self.foil_name = foil_name
         self.results_type = results_type
-        self.mmfoil_total_length = m_foil_total_length
-        self.m_foil_chord_length = m_foil_chord_length
         self.m2_foil_area = m2_foil_area
         self.file_path = file_path
+        self.m_chord_length = m_chord_length
         self.data = None
 
         # Set display options to show all columns
