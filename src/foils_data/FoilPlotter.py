@@ -1,7 +1,9 @@
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.interpolate import make_interp_spline
 
 matplotlib.use('TkAgg')
 
@@ -67,12 +69,28 @@ class FoilPlotter:
             df_filtered = self.data_manager.filter_data_by_velocity(velocity)
 
             if not df_filtered.empty:
-                # Plot Lift Force vs. Angle of Attack for the current velocity
-                ax.plot(df_filtered['angle_of_attack'], df_filtered['lift_force'],
-                        label=f'Lift Force at {velocity} m/s', color=colors[idx % len(colors)], marker='x')
+                # Sort data to avoid interpolation issues
+                df_filtered = df_filtered.sort_values(by='angle_of_attack')
+
+                x = df_filtered['angle_of_attack'].values
+                y = df_filtered['lift_force'].values
+
+                # Generate smooth interpolation
+                if len(x) > 2:  # Need at least 3 points for quadratic interpolation
+                    x_smooth = np.linspace(x.min(), x.max(), 200)
+                    spline = make_interp_spline(x, y, k=2)  # Quadratic interpolation
+                    y_smooth = spline(x_smooth)
+
+                    ax.plot(x_smooth, y_smooth, color=colors[idx % len(colors)], label=f'Lift Force at {velocity} m/s')
+                else:
+                    ax.plot(x, y, color=colors[idx % len(colors)], label=f'Lift Force at {velocity} m/s')
+
+                # Plot original data points
+                ax.scatter(x, y, color=colors[idx % len(colors)], marker='x')
 
         if highlight_value is not None:
             ax.axhline(y=highlight_value, color='red', linestyle='--', label=f'Highlight: {highlight_value} N')
+
         # Customize the plot
         ax.set_xlabel('Angle of Attack (degrees)')
         ax.set_ylabel('Lift Force (N)')
@@ -239,14 +257,29 @@ class FoilPlotter:
             df_filtered = self.data_manager.filter_data_by_velocity(velocity)
 
             if not df_filtered.empty:
-                # Plot cl/cd for the current velocity
-                ax.plot(df_filtered['angle_of_attack'], df_filtered['cl_cd'],
-                        label=f'cl/cd at {velocity} m/s', color=colors[idx % len(colors)], marker='x')
+                # Sort data to avoid interpolation issues
+                df_filtered = df_filtered.sort_values(by='angle_of_attack')
+
+                x = df_filtered['angle_of_attack'].values
+                y = df_filtered['cl_cd'].values
+
+                # Generate smooth quadratic interpolation
+                if len(x) > 2:  # At least 3 points needed for quadratic interpolation
+                    x_smooth = np.linspace(x.min(), x.max(), 200)
+                    spline = make_interp_spline(x, y, k=3)  # Quadratic interpolation
+                    y_smooth = spline(x_smooth)
+
+                    ax.plot(x_smooth, y_smooth, color=colors[idx % len(colors)], label=f'cl/cd at {velocity} m/s')
+                else:
+                    ax.plot(x, y, color=colors[idx % len(colors)], label=f'cl/cd at {velocity} m/s')
+
+                # Plot original data points
+                ax.scatter(x, y, color=colors[idx % len(colors)], marker='x')
 
         # Customize the plot
-        ax.set_xlabel('Angle of attack')
+        ax.set_xlabel('Angle of Attack')
         ax.set_ylabel('cl/cd')
-        ax.set_title(f'cl/cd at different velocities for {self.data_manager.foil_name}')
+        ax.set_title(f'cl/cd at Different Velocities for {self.data_manager.foil_name}')
         ax.grid(True)
         ax.legend()
 
@@ -265,9 +298,24 @@ class FoilPlotter:
             df_filtered = self.data_manager.filter_data_by_angle(angle)
 
             if not df_filtered.empty:
-                # Plot Lift Force vs. velocity for the angle
-                ax.plot(df_filtered['inlet_vel'], df_filtered['lift_force'],
-                        label=f'Lift Force at {angle} deg', color=colors[idx % len(colors)], marker='x')
+                # Sort data to avoid interpolation issues
+                df_filtered = df_filtered.sort_values(by='inlet_vel')
+
+                x = df_filtered['inlet_vel'].values
+                y = df_filtered['lift_force'].values
+
+                # Generate smooth quadratic interpolation
+                if len(x) > 2:  # At least 3 points needed for quadratic interpolation
+                    x_smooth = np.linspace(x.min(), x.max(), 200)
+                    spline = make_interp_spline(x, y, k=2)  # Quadratic interpolation
+                    y_smooth = spline(x_smooth)
+
+                    ax.plot(x_smooth, y_smooth, color=colors[idx % len(colors)], label=f'Lift Force at {angle}°')
+                else:
+                    ax.plot(x, y, color=colors[idx % len(colors)], label=f'Lift Force at {angle}°')
+
+                # Plot original data points
+                ax.scatter(x, y, color=colors[idx % len(colors)], marker='x')
 
         # Customize the plot
         ax.set_xlabel('Velocity (m/s)')
@@ -277,7 +325,7 @@ class FoilPlotter:
         ax.legend()
 
         # Display the plot
-        plt.show(block=False)
+        plt.show(block=True)
 
     def plot_3d_lift_vs_velocity_and_angle_scatter(self):
         """

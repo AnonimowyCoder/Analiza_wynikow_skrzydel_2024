@@ -19,8 +19,18 @@ def main():
     EPPLER396_CFD_path = 'data_CFD/CFD_2D_EPPLER_396_WYNIKI.csv'
     NACA6409_AFT_path = 'data_AFT/xf-n6409-il-1000000-n5.csv'
     EPPLER908_CFD_path = 'data_CFD/CFD_3D_skrzydla_tylnie2021_eppler908_Wyniki_p.csv'
+    NACA_0_033_path = 'data_CFD/CFD_3D_naca_6409_pow_0.033.csv'
 
     # Initialize DataManagers
+    ############################################################
+    data_manager_NACA_0_033_CFD = FoilManager('CFD', 'NACA_0_033', NACA_0_033_path, 0, 0, NACA_0_033_AREA)
+    data_manager_NACA_0_033_CFD.load_data()
+    data_manager_NACA_0_033_CFD.clean_data()
+    data_manager_NACA_0_033_CFD.multiply_forces_by_2()
+    data_manager_NACA_0_033_CFD.calculate_lift_coefficient(WATER_DENSITY)
+    data_manager_NACA_0_033_CFD.calculate_drag_coefficient(WATER_DENSITY)
+    data_manager_NACA_0_033_CFD.calculate_cl_cd()
+
     ############################################################
     data_manager_NACA6409_CFD = FoilManager('CFD', 'NACA 6409', NACA6409_CFD_path, NACA6409_TOTAL_LENGTH,
                                             NACA6409_CHORD_LENGTH, NACA6409_AREA)
@@ -69,6 +79,11 @@ def main():
     plotter_NACA6409_AFT = FoilPlotter(data_manager_NACA6409_AFT)
     plotter_NACA64A715_CFD = FoilPlotter(data_manager_NACA64A715_CFD)
     plotter_EPPLER908_CFD = FoilPlotter(data_manager_EPPLER908)
+    plotter_NACA_0_033_CFD = FoilPlotter(data_manager_NACA_0_033_CFD)
+
+    #plotter_NACA_0_033_CFD.plot_lift_vs_velocity_compare_angles([-2,0,2,4])
+    #plotter_NACA_0_033_CFD.plot_lift_vs_velocity_compare_angles([-2,0,2,4,6,8])
+    plotter_NACA_0_033_CFD.plot_cl_cd_at_target_velocities([6,8,10])
 
     # compare_foils_lift(plotter_EPPLER908_CFD, plotter_NACA6409_CFD)
     # compare_foils_drag(plotter_EPPLER908_CFD, plotter_NACA6409_CFD)
@@ -83,7 +98,7 @@ def main():
     # plotter_NACA6409_CFD.plot_cl_cd_at_target_velocity_compare_foils(7, data_manager_EPPLER396)
     #plotter_EPPLER908_CFD.plot_lift_vs_angle_compare_velocities({7, 7.5, 8},53*GRAVITATIONAL_ACCELERATION)
     #plotter_NACA6409_CFD.plot_cl_cd_at_target_velocities({7, 8})
-    plotter_NACA6409_CFD.plot_drag_force_target_velocity_compare_foils(8)
+    #plotter_NACA6409_CFD.plot_drag_force_target_velocity_compare_foils(8)
     exit_call = input("Press whatever to exit")
 
 

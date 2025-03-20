@@ -74,7 +74,7 @@ def _find_angle_of_attack(inlet_vel, desired_lift_coefficient, df):
 
 def _calculate_foil_area(target_angle_of_attack, target_velocity, pylon_mass, foilManager: FoilManager):
     """
-    Method to calculate the area of the foil to model a flight.
+    Method to calculate the area of the foil.
     Formula: area = (2 * lift_force) / (density * velocity^2 * lift_coefficient) [m^2]
 
     :param pylon_mass: mass on selected pylon (the argument should be an attribute of Boat)
@@ -402,9 +402,9 @@ def not_centered_mass_analysis():
     ################################
     # ASSUMPTIONS
     # target_velocity is the velocity for which the boat is designed. At that velocity the boat should have optimal aoa
-    # on foils - at the highest cl/cd value. That is at 0 deg for NACA6409
-    target_velocity = 8.4
-    front_target_aoa = 1
+    # on foils - at the highest cl/cd value. That is at 0.5 deg for NACA6409
+    target_velocity = 8.3
+    front_target_aoa = 0.5
     rear_target_aoa = 0.5
 
     # The areas are calculated for given velocity, aoa, and profile
@@ -420,7 +420,7 @@ def not_centered_mass_analysis():
     # Case 1. The areas are calculated for equal mass distribution. Let's consider unequal mass distribution,
     # and correct the produced lift force with different aoa
 
-    unequal_mass_ratio = 0.55
+    unequal_mass_ratio = 0.666666
     Delta.center_of_mass_based_on_front_rear_mass_ratio(unequal_mass_ratio, front_pylon_y_position, front_pylon_x_width,
                                                         rear_pylon_y_position)
     # Now the mass on pylons is updated
@@ -477,6 +477,7 @@ def not_centered_mass_analysis():
 
     Foil_Plotter_New_Boat = FoilPlotter(data_manager_New_Boat_drags)
     Foil_Plotter_New_Boat.plot_cl_cd_at_target_velocity_compare_foils(8)
+    Foil_Plotter_New_Boat.plot_drag_force_target_velocity_compare_foils(8)
 
 def not_centered_mass_analysis_V2():
     # Creation of boat
@@ -510,9 +511,9 @@ def not_centered_mass_analysis_V2():
     # ASSUMPTIONS
     # target_velocity is the velocity for which the boat is designed. At that velocity the boat should have optimal aoa
     # on foils - at the highest cl/cd value. That is at 0 deg for NACA6409
-    target_velocity = 6
-    front_target_aoa = 1
-    rear_target_aoa = 1
+    target_velocity = 8.0
+    front_target_aoa = 0
+    rear_target_aoa = 0
 
     # The areas are calculated for given velocity, aoa, and profile
     rear_foil_area, front_foil_area = overall_lift_analysis(target_velocity, data_manager_New_Boat_drags,

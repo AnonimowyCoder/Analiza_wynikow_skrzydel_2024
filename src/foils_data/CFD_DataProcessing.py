@@ -35,6 +35,25 @@ class CFD_DataProcessingMixin:
         """
         self.data['cl_cd'] = self.data['lift_coefficient'] / self.data['drag_coefficient']
 
+    def calculate_pressure_center(self, x1=0.0):
+        """
+        Calculate the pressure center of a foil, where the returning value is value (0,1) representing position on the foil
+
+        Formula
+
+        Xcp = x1 - Cm1/Cl
+
+        where:
+        Xcp - position of pressure center
+        x1 - position of the axis on the chord for which moment force is calculated
+        Cm1 - Moment force over axis x1
+        Cl - Lift Force of the foil
+
+        Parameters:
+            x1 - position of the axis on the chord for which moment force is calculated
+        """
+        self.data['pressure_center'] = x1 - self.data['moment'] / self.data['lift_force']
+
     def get_interpolated_value(self, column_name, angle_of_attack, velocity):
         """
         Generic method to get the interpolated value for a given column using cubic interpolation.
@@ -74,42 +93,54 @@ class CFD_DataProcessingMixin:
 
     def get_interpolated_lift_force(self, angle_of_attack, velocity):
         """
-        Get the interpolated lift force using cubic interpolation.
+        Get the interpolated lift force.
         """
         return self.get_interpolated_value('lift_force', angle_of_attack, velocity)
 
     def get_interpolated_drag_coefficient(self, angle_of_attack, velocity):
         """
-        Get the interpolated drag coefficient using cubic interpolation.
+        Get the interpolated drag coefficient.
         """
         return self.get_interpolated_value('drag_coefficient', angle_of_attack, velocity)
 
     def get_interpolated_lift_coefficient(self, angle_of_attack, velocity):
         """
-        Get the interpolated lift coefficient using cubic interpolation.
+        Get the interpolated lift coefficient.
         """
         return self.get_interpolated_value('lift_coefficient', angle_of_attack, velocity)
 
     def get_interpolated_drag_force_foil(self, angle_of_attack, velocity):
         """
-        Get the interpolated drag force of the foil using cubic interpolation.
+        Get the interpolated drag force of the foil.
         """
         return self.get_interpolated_value('drag_force', angle_of_attack, velocity)
 
     def get_interpolated_drag_force_pylon(self, angle_of_attack, velocity):
         """
-        Get the interpolated drag force of the pylon using cubic interpolation.
+        Get the interpolated drag force of the pylon.
         """
         return self.get_interpolated_value('drag_force_pylon', angle_of_attack, velocity)
 
     def get_interpolated_drag_force_mocowanie(self, angle_of_attack, velocity):
         """
-        Get the interpolated drag force of the mocowanie using cubic interpolation.
+        Get the interpolated drag force of the mocowanie.
         """
         return self.get_interpolated_value('drag_force_mocowanie', angle_of_attack, velocity)
 
     def get_interpolated_drag_force_gondola(self, angle_of_attack, velocity):
         """
-        Get the interpolated drag force of the gondola using cubic interpolation.
+        Get the interpolated drag force of the gondola.
         """
         return self.get_interpolated_value('drag_force_gondola', angle_of_attack, velocity)
+
+    def get_interpolated_moment(self, angle_of_attack, velocity):
+        """
+        Get the interpolated moment.
+        """
+        return self.get_interpolated_value('moment', angle_of_attack, velocity)
+
+    def get_interpolated_pressure_center(self,angle_of_attack, velocity):
+        """
+        Get the interpolated pressure center of a foil.
+        """
+        return self.get_interpolated_value('pressure_center',angle_of_attack,velocity)

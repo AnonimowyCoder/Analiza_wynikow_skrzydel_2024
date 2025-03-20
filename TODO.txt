@@ -1,3 +1,6 @@
-1. Obliczanie dragu z uwzględnieniem oporów pylonów i gondoli.
-Należy wykonać symulację pylonów z mocowaniem i ze skrzydłem, następnie odjąć wartość oporu powodowaną przez skrzydło.
-Tak samo należy postąpić z symulacją gondoli ze skrzydłem, by otrzymać tylko opór generowany przez część pylonu i gondolę.
+0. Doliczyć case !!! 0.5,1,1.5 dla najistotniejszych prędkości
+1. Obliczanie środków parcia na skrzydle dla kątów
+    Wyznaczyć momenty sił dla danego położenia na cięciwie i danej prędkości + proste wykresy
+2. Wyznaczenie na jakich kątach natarcia będziemy latać dla naszych docelowych prędkości
+3. Wyznaczyć minimalną prędkość w jakiej możemy się wznieść
+
